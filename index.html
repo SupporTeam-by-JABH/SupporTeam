@@ -5,28 +5,45 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SupportTeam | Consulta</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
 <style>
 body {
   margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #f4f6f9;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(-45deg, #6a0dad, #20c997, #e91e63, #c77dff);
+  background-size: 400% 400%;
+  animation: fondoTornasol 10s ease infinite;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
 }
 
+@keyframes fondoTornasol {
+  0% {background-position: 0% 50%;}
+  50% {background-position: 100% 50%;}
+  100% {background-position: 0% 50%;}
+}
+
 .main-box {
   background: white;
-  padding: 40px;
-  border-radius: 20px;
+  padding: 45px;
+  border-radius: 25px;
   width: 90%;
-  max-width: 450px;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+  max-width: 500px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
   text-align: center;
 }
 
 h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.fecha-hora {
+  font-size: 20px;
+  font-weight: 600;
   margin-bottom: 25px;
 }
 
@@ -37,34 +54,58 @@ h1 {
 
 input {
   flex: 1;
-  padding: 14px;
-  border-radius: 12px;
+  padding: 16px;
+  border-radius: 15px;
   border: 1px solid #ccc;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 button {
-  padding: 14px 18px;
-  border-radius: 12px;
+  padding: 16px 22px;
+  border-radius: 15px;
   border: none;
   background: black;
   color: white;
   cursor: pointer;
+  font-size: 17px;
+  font-weight: 600;
   transition: 0.3s;
 }
 
 button:hover {
   background: #333;
+  transform: scale(1.05);
 }
 
 .result-card {
-  margin-top: 25px;
-  padding: 20px;
-  border-radius: 15px;
+  margin-top: 30px;
+  padding: 25px;
+  border-radius: 20px;
   background: #fafafa;
   border: 1px solid #eee;
   display: none;
   text-align: left;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.whatsapp-float {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background: #25D366;
+  color: white;
+  padding: 16px 22px;
+  border-radius: 50px;
+  font-size: 16px;
+  text-decoration: none;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  display: none;
+  font-weight: 600;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.08);
 }
 </style>
 </head>
@@ -73,20 +114,46 @@ button:hover {
 
 <div class="main-box">
   <h1>Consulta tu Folio</h1>
+  <div class="fecha-hora" id="fechaHora"></div>
 
   <div class="input-box">
-    <input type="text" id="folio" placeholder="Ej. 1001">
+    <input type="text" id="folio" placeholder="Ingresa tu folio">
     <button onclick="buscar()">Consultar</button>
   </div>
 
   <div id="resultado" class="result-card"></div>
 </div>
 
+<a id="whatsappBtn" class="whatsapp-float" target="_blank">
+Enviar WhatsApp
+</a>
+
 <script>
+// Fecha y hora en vivo
+function actualizarFechaHora() {
+  const ahora = new Date();
+  const opciones = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  };
+
+  const fecha = ahora.toLocaleDateString('es-MX', opciones);
+  const hora = ahora.toLocaleTimeString('es-MX');
+
+  document.getElementById("fechaHora").innerHTML =
+    fecha.charAt(0).toUpperCase() + fecha.slice(1) + "<br>" + hora;
+}
+
+setInterval(actualizarFechaHora, 1000);
+actualizarFechaHora();
+
 function buscar() {
   const folio = document.getElementById("folio").value.trim();
   const datos = JSON.parse(localStorage.getItem("reparaciones")) || [];
   const resultado = document.getElementById("resultado");
+  const whatsappBtn = document.getElementById("whatsappBtn");
 
   const encontrado = datos.find(item => item.folio === folio);
 
@@ -98,9 +165,29 @@ function buscar() {
       <strong>Estatus:</strong> ${encontrado.estatus}<br><br>
       <strong>Fecha estimada:</strong> ${encontrado.fecha}
     `;
+
+    const estado = encontrado.estatus.toLowerCase();
+
+    if (estado.includes("listo") || 
+        estado.includes("reparado") || 
+        estado.includes("éxito") || 
+        estado.includes("exito")) {
+
+      const mensaje = `Hola SupportTeam, mi folio ${folio} aparece como ${encontrado.estatus}. ¿Puedo pasar a recoger mi equipo?`;
+      const numero = "528145457703";
+      const link = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
+
+      whatsappBtn.href = link;
+      whatsappBtn.style.display = "block";
+
+    } else {
+      whatsappBtn.style.display = "none";
+    }
+
   } else {
     resultado.style.display = "block";
     resultado.innerHTML = "<span style='color:red;'>Folio no encontrado</span>";
+    whatsappBtn.style.display = "none";
   }
 }
 </script>
