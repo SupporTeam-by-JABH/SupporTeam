@@ -3,164 +3,105 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SupportTeam | Consulta tu Folio</title>
+<title>SupportTeam | Consulta</title>
 
 <style>
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #6a0dad, #20c997, #00cfff);
-  background-size: 300% 300%;
-  animation: fondoTornasol 8s ease infinite;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f4f6f9;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
 }
 
-@keyframes fondoTornasol {
-  0% {background-position: 0% 50%;}
-  50% {background-position: 100% 50%;}
-  100% {background-position: 0% 50%;}
-}
-
-.container {
+.main-box {
   background: white;
-  padding: 30px;
-  border-radius: 15px;
+  padding: 40px;
+  border-radius: 20px;
   width: 90%;
-  max-width: 400px;
+  max-width: 450px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.08);
   text-align: center;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
 h1 {
-  margin-bottom: 10px;
+  margin-bottom: 25px;
 }
 
-label {
-  font-weight: bold;
-  font-size: 16px;
+.input-box {
+  display: flex;
+  gap: 10px;
 }
 
 input {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 8px;
+  flex: 1;
+  padding: 14px;
+  border-radius: 12px;
   border: 1px solid #ccc;
   font-size: 16px;
 }
 
 button {
-  margin-top: 15px;
-  padding: 12px;
-  width: 100%;
+  padding: 14px 18px;
+  border-radius: 12px;
   border: none;
-  border-radius: 8px;
-  background: #6a0dad;
+  background: black;
   color: white;
-  font-size: 16px;
   cursor: pointer;
   transition: 0.3s;
 }
 
 button:hover {
-  transform: scale(1.05);
+  background: #333;
 }
 
-#resultado {
-  margin-top: 20px;
-  min-height: 60px;
-}
-
-.zoom {
-  animation: zoomIn 0.3s ease;
-}
-
-@keyframes zoomIn {
-  from {transform: scale(0.8); opacity: 0;}
-  to {transform: scale(1); opacity: 1;}
-}
-
-.whatsapp-float {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #25D366;
-  color: white;
-  padding: 15px 18px;
-  border-radius: 50px;
-  font-size: 14px;
-  text-decoration: none;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
-
-.footer {
-  margin-top: 15px;
-  font-size: 12px;
-  color: #666;
+.result-card {
+  margin-top: 25px;
+  padding: 20px;
+  border-radius: 15px;
+  background: #fafafa;
+  border: 1px solid #eee;
+  display: none;
+  text-align: left;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-  <h1>SupportTeam</h1>
-  <label>Ingresa tu folio</label>
-  <input type="text" id="folio" placeholder="Ejemplo: 1001">
-  <button onclick="buscarFolio()">Consultar</button>
-  <div id="resultado"></div>
-  <div class="footer">
-    Creado, editado y animado por CHATGPT Y YISUSM98
+<div class="main-box">
+  <h1>Consulta tu Folio</h1>
+
+  <div class="input-box">
+    <input type="text" id="folio" placeholder="Ej. 1001">
+    <button onclick="buscar()">Consultar</button>
   </div>
+
+  <div id="resultado" class="result-card"></div>
 </div>
 
 <script>
-function escribirMaquina(texto, elemento) {
-  elemento.innerHTML = "";
-  let i = 0;
-  const intervalo = setInterval(() => {
-    elemento.innerHTML += texto.charAt(i);
-    i++;
-    if (i >= texto.length) clearInterval(intervalo);
-  }, 25);
-}
-
-function buscarFolio() {
+function buscar() {
   const folio = document.getElementById("folio").value.trim();
   const datos = JSON.parse(localStorage.getItem("reparaciones")) || [];
   const resultado = document.getElementById("resultado");
-  resultado.classList.remove("zoom");
 
   const encontrado = datos.find(item => item.folio === folio);
 
-  setTimeout(() => {
-    resultado.classList.add("zoom");
-
-    if (encontrado) {
-      escribirMaquina(
-        `Equipo: ${encontrado.equipo}\nEstatus: ${encontrado.estatus}\nFecha: ${encontrado.fecha}`,
-        resultado
-      );
-
-      if (encontrado.estatus.toLowerCase() === "listo") {
-        const mensaje = `Hola SupportTeam, acabo de consultar mi folio ${folio}. Aparece como listo, ¿en qué horario puedo pasar a recogerlo?`;
-        const numero = "5218145457703"; // CAMBIA POR TU NÚMERO
-        const link = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
-
-        resultado.innerHTML += `<br><br>
-          <a href="${link}" target="_blank" class="whatsapp-float">
-          Enviar WhatsApp
-          </a>`;
-      }
-
-    } else {
-      resultado.innerHTML = "<span style='color:red;'>Folio no encontrado</span>";
-    }
-
-  }, 200);
+  if (encontrado) {
+    resultado.style.display = "block";
+    resultado.innerHTML = `
+      <strong>Folio:</strong> ${encontrado.folio}<br><br>
+      <strong>Modelo:</strong> ${encontrado.modelo}<br><br>
+      <strong>Estatus:</strong> ${encontrado.estatus}<br><br>
+      <strong>Fecha estimada:</strong> ${encontrado.fecha}
+    `;
+  } else {
+    resultado.style.display = "block";
+    resultado.innerHTML = "<span style='color:red;'>Folio no encontrado</span>";
+  }
 }
 </script>
 
