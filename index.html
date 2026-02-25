@@ -103,10 +103,6 @@ button:hover {
   display: none;
   font-weight: 600;
 }
-
-.whatsapp-float:hover {
-  transform: scale(1.08);
-}
 </style>
 </head>
 
@@ -128,58 +124,68 @@ button:hover {
 Enviar WhatsApp
 </a>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD0xhp8j7NPgAwW8LufRMt1MS3Pgwd_avk",
+  authDomain: "supportteam-139a1.firebaseapp.com",
+  projectId: "supportteam-139a1",
+  storageBucket: "supportteam-139a1.firebasestorage.app",
+  messagingSenderId: "134164379249",
+  appId: "1:134164379249:web:c07ae6632ae7c287a80dd0"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 // Fecha y hora en vivo
 function actualizarFechaHora() {
   const ahora = new Date();
-  const opciones = {
+  const fecha = ahora.toLocaleDateString('es-MX', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric'
-  };
-
-  const fecha = ahora.toLocaleDateString('es-MX', opciones);
+  });
   const hora = ahora.toLocaleTimeString('es-MX');
-
   document.getElementById("fechaHora").innerHTML =
     fecha.charAt(0).toUpperCase() + fecha.slice(1) + "<br>" + hora;
 }
-
 setInterval(actualizarFechaHora, 1000);
 actualizarFechaHora();
 
-function buscar() {
+window.buscar = async function() {
   const folio = document.getElementById("folio").value.trim();
-  const datos = JSON.parse(localStorage.getItem("reparaciones")) || [];
   const resultado = document.getElementById("resultado");
   const whatsappBtn = document.getElementById("whatsappBtn");
 
-  const encontrado = datos.find(item => item.folio === folio);
+  const q = query(collection(db, "reparaciones"), where("folio", "==", folio));
+  const querySnapshot = await getDocs(q);
 
-  if (encontrado) {
+  if (!querySnapshot.empty) {
+    const data = querySnapshot.docs[0].data();
+
     resultado.style.display = "block";
     resultado.innerHTML = `
-      <strong>Folio:</strong> ${encontrado.folio}<br><br>
-      <strong>Modelo:</strong> ${encontrado.modelo}<br><br>
-      <strong>Estatus:</strong> ${encontrado.estatus}<br><br>
-      <strong>Fecha estimada:</strong> ${encontrado.fecha}
+      <strong>Folio:</strong> ${data.folio}<br><br>
+      <strong>Modelo:</strong> ${data.modelo}<br><br>
+      <strong>Estatus:</strong> ${data.estatus}<br><br>
+      <strong>Fecha estimada:</strong> ${data.fecha}
     `;
 
-    const estado = encontrado.estatus.toLowerCase();
+    const estado = data.estatus.toLowerCase();
 
-    if (estado.includes("listo") || 
-        estado.includes("reparado") || 
-        estado.includes("éxito") || 
+    if (estado.includes("listo") ||
+        estado.includes("reparado") ||
+        estado.includes("éxito") ||
         estado.includes("exito")) {
 
-      const mensaje = `Hola SupportTeam, mi folio ${folio} aparece como ${encontrado.estatus}. ¿Puedo pasar a recoger mi equipo?`;
+      const mensaje = `Hola SupportTeam, mi folio ${folio} aparece como ${data.estatus}. ¿Puedo pasar a recoger mi equipo?`;
       const numero = "528145457703";
-      const link = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
-
-      whatsappBtn.href = link;
+      whatsappBtn.href = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
       whatsappBtn.style.display = "block";
-
     } else {
       whatsappBtn.style.display = "none";
     }
@@ -194,6 +200,7 @@ function buscar() {
 
 </body>
 </html>
+
 
 
 
