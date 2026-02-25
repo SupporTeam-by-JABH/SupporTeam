@@ -11,7 +11,6 @@
 body{
   margin:0;
   font-family:'Poppins',sans-serif;
-  background:#0f2027;
   background:linear-gradient(to right,#2c5364,#203a43,#0f2027);
   color:white;
   text-align:center;
@@ -71,13 +70,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getFirestore, collection, getDocs } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const firebaseConfig={
-  apiKey:"TU_API_KEY",
-  authDomain:"TU_AUTH_DOMAIN",
-  projectId:"TU_PROJECT_ID",
-  storageBucket:"TU_STORAGE",
-  messagingSenderId:"TU_MSG_ID",
-  appId:"TU_APP_ID"
+const firebaseConfig = {
+  apiKey: "AIzaSyD0xhp8j7NPgAwW8LufRMt1MS3Pgwd_avk",
+  authDomain: "supportteam-139a1.firebaseapp.com",
+  projectId: "supportteam-139a1",
+  storageBucket: "supportteam-139a1.firebasestorage.app",
+  messagingSenderId: "134164379249",
+  appId: "1:134164379249:web:c07ae6632ae7c287a80dd0",
+  measurementId: "G-TJH6NFCK02"
 };
 
 const app=initializeApp(firebaseConfig);
@@ -94,9 +94,10 @@ window.buscar=async function(){
       encontrado=true;
 
       let fuegos="";
-      if(data.estatus.toLowerCase().includes("reparado") || 
-         data.estatus.toLowerCase().includes("listo") ||
-         data.estatus.toLowerCase().includes("éxito")){
+      const estatus=data.estatus.toLowerCase();
+      if(estatus.includes("reparado") || 
+         estatus.includes("listo") ||
+         estatus.includes("éxito")){
         fuegos="<div class='fireworks'>🎆🎇🎆</div>";
       }
 
@@ -118,9 +119,3 @@ window.buscar=async function(){
 
 </body>
 </html>
-
-
-
-
-
-
