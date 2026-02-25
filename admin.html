@@ -61,10 +61,10 @@ button{
 
 <h1>Panel Administrador</h1>
 
-<input type="text" id="folio" placeholder="Folio">
-<input type="text" id="modelo" placeholder="Modelo">
-<input type="text" id="estatus" placeholder="Estatus">
-<input type="text" id="fecha" placeholder="Fecha estimada">
+<input type="text" id="folioInput" placeholder="Folio">
+<input type="text" id="modeloInput" placeholder="Modelo">
+<input type="text" id="estatusInput" placeholder="Estatus">
+<input type="text" id="fechaInput" placeholder="Fecha estimada">
 
 <button class="btn-main" onclick="guardar()">Guardar / Actualizar</button>
 <button class="btn-logout" onclick="cerrarSesion()">Cerrar sesión</button>
@@ -88,12 +88,13 @@ import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc }
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_AUTH_DOMAIN",
-  projectId: "TU_PROJECT_ID",
-  storageBucket: "TU_STORAGE",
-  messagingSenderId: "TU_MSG_ID",
-  appId: "TU_APP_ID"
+  apiKey: "AIzaSyD0xhp8j7NPgAwW8LufRMt1MS3Pgwd_avk",
+  authDomain: "supportteam-139a1.firebaseapp.com",
+  projectId: "supportteam-139a1",
+  storageBucket: "supportteam-139a1.firebasestorage.app",
+  messagingSenderId: "134164379249",
+  appId: "1:134164379249:web:c07ae6632ae7c287a80dd0",
+  measurementId: "G-TJH6NFCK02"
 };
 
 const app = initializeApp(firebaseConfig);
