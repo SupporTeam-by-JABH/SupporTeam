@@ -3,197 +3,115 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SupportTeam | Consulta</title>
+<title>Consulta tu Reparación</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-body {
-  margin: 0;
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(-45deg, #6a0dad, #20c997, #e91e63, #c77dff);
-  background-size: 400% 400%;
-  animation: fondoTornasol 10s ease infinite;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:#0f2027;
+  background:linear-gradient(to right,#2c5364,#203a43,#0f2027);
+  color:white;
+  text-align:center;
+  padding:40px;
 }
 
-@keyframes fondoTornasol {
-  0% {background-position: 0% 50%;}
-  50% {background-position: 100% 50%;}
-  100% {background-position: 0% 50%;}
+input{
+  padding:14px;
+  border-radius:12px;
+  border:none;
+  width:250px;
+  font-size:16px;
 }
 
-.main-box {
-  background: white;
-  padding: 45px;
-  border-radius: 25px;
-  width: 90%;
-  max-width: 500px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-  text-align: center;
+button{
+  padding:14px 20px;
+  border-radius:12px;
+  border:none;
+  background:#20c997;
+  color:black;
+  font-weight:600;
+  cursor:pointer;
+  margin-left:5px;
 }
 
-h1 {
-  font-size: 28px;
-  margin-bottom: 10px;
+.result{
+  margin-top:30px;
+  background:rgba(255,255,255,0.1);
+  padding:20px;
+  border-radius:15px;
+  display:inline-block;
 }
 
-.fecha-hora {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 25px;
+.fireworks{
+  font-size:40px;
+  animation:explode 1s infinite alternate;
 }
 
-.input-box {
-  display: flex;
-  gap: 10px;
-}
-
-input {
-  flex: 1;
-  padding: 16px;
-  border-radius: 15px;
-  border: 1px solid #ccc;
-  font-size: 18px;
-}
-
-button {
-  padding: 16px 22px;
-  border-radius: 15px;
-  border: none;
-  background: black;
-  color: white;
-  cursor: pointer;
-  font-size: 17px;
-  font-weight: 600;
-  transition: 0.3s;
-}
-
-button:hover {
-  background: #333;
-  transform: scale(1.05);
-}
-
-.result-card {
-  margin-top: 30px;
-  padding: 25px;
-  border-radius: 20px;
-  background: #fafafa;
-  border: 1px solid #eee;
-  display: none;
-  text-align: left;
-  font-size: 18px;
-  line-height: 1.6;
-}
-
-.whatsapp-float {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
-  background: #25D366;
-  color: white;
-  padding: 16px 22px;
-  border-radius: 50px;
-  font-size: 16px;
-  text-decoration: none;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-  display: none;
-  font-weight: 600;
+@keyframes explode{
+  from{transform:scale(1);}
+  to{transform:scale(1.3);}
 }
 </style>
 </head>
 
 <body>
 
-<div class="main-box">
-  <h1>Consulta tu Folio</h1>
-  <div class="fecha-hora" id="fechaHora"></div>
+<h1>Consulta tu Reparación</h1>
 
-  <div class="input-box">
-    <input type="text" id="folio" placeholder="Ingresa tu folio">
-    <button onclick="buscar()">Consultar</button>
-  </div>
+<input type="text" id="folioInput" placeholder="Ingresa tu folio">
+<button onclick="buscar()">Consultar</button>
 
-  <div id="resultado" class="result-card"></div>
-</div>
-
-<a id="whatsappBtn" class="whatsapp-float" target="_blank">
-Enviar WhatsApp
-</a>
+<div id="resultado"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs } 
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyD0xhp8j7NPgAwW8LufRMt1MS3Pgwd_avk",
-  authDomain: "supportteam-139a1.firebaseapp.com",
-  projectId: "supportteam-139a1",
-  storageBucket: "supportteam-139a1.firebasestorage.app",
-  messagingSenderId: "134164379249",
-  appId: "1:134164379249:web:c07ae6632ae7c287a80dd0"
+const firebaseConfig={
+  apiKey:"TU_API_KEY",
+  authDomain:"TU_AUTH_DOMAIN",
+  projectId:"TU_PROJECT_ID",
+  storageBucket:"TU_STORAGE",
+  messagingSenderId:"TU_MSG_ID",
+  appId:"TU_APP_ID"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
 
-// Fecha y hora en vivo
-function actualizarFechaHora() {
-  const ahora = new Date();
-  const fecha = ahora.toLocaleDateString('es-MX', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-  const hora = ahora.toLocaleTimeString('es-MX');
-  document.getElementById("fechaHora").innerHTML =
-    fecha.charAt(0).toUpperCase() + fecha.slice(1) + "<br>" + hora;
-}
-setInterval(actualizarFechaHora, 1000);
-actualizarFechaHora();
+window.buscar=async function(){
+  const folio=folioInput.value.trim();
+  const querySnapshot=await getDocs(collection(db,"reparaciones"));
+  let encontrado=false;
 
-window.buscar = async function() {
-  const folio = document.getElementById("folio").value.trim();
-  const resultado = document.getElementById("resultado");
-  const whatsappBtn = document.getElementById("whatsappBtn");
+  querySnapshot.forEach((doc)=>{
+    const data=doc.data();
+    if(data.folio===folio){
+      encontrado=true;
 
-  const q = query(collection(db, "reparaciones"), where("folio", "==", folio));
-  const querySnapshot = await getDocs(q);
+      let fuegos="";
+      if(data.estatus.toLowerCase().includes("reparado") || 
+         data.estatus.toLowerCase().includes("listo") ||
+         data.estatus.toLowerCase().includes("éxito")){
+        fuegos="<div class='fireworks'>🎆🎇🎆</div>";
+      }
 
-  if (!querySnapshot.empty) {
-    const data = querySnapshot.docs[0].data();
-
-    resultado.style.display = "block";
-    resultado.innerHTML = `
-      <strong>Folio:</strong> ${data.folio}<br><br>
-      <strong>Modelo:</strong> ${data.modelo}<br><br>
-      <strong>Estatus:</strong> ${data.estatus}<br><br>
-      <strong>Fecha estimada:</strong> ${data.fecha}
-    `;
-
-    const estado = data.estatus.toLowerCase();
-
-    if (estado.includes("listo") ||
-        estado.includes("reparado") ||
-        estado.includes("éxito") ||
-        estado.includes("exito")) {
-
-      const mensaje = `Hola SupportTeam, mi folio ${folio} aparece como ${data.estatus}. ¿Puedo pasar a recoger mi equipo?`;
-      const numero = "528145457703";
-      whatsappBtn.href = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
-      whatsappBtn.style.display = "block";
-    } else {
-      whatsappBtn.style.display = "none";
+      resultado.innerHTML=`
+        <div class="result">
+          <h2>${data.modelo}</h2>
+          <p><strong>Estatus:</strong> ${data.estatus}</p>
+          <p><strong>Fecha estimada:</strong> ${data.fecha}</p>
+          ${fuegos}
+        </div>`;
     }
+  });
 
-  } else {
-    resultado.style.display = "block";
-    resultado.innerHTML = "<span style='color:red;'>Folio no encontrado</span>";
-    whatsappBtn.style.display = "none";
+  if(!encontrado){
+    resultado.innerHTML="<p>Folio no encontrado</p>";
   }
 }
 </script>
