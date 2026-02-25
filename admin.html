@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Panel Administrador</title>
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#f4f6f8;
+  margin:0;
+  padding:40px;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+}
+
+h1{
+  text-align:center;
+  margin-bottom:30px;
+}
+
+.login{
+  text-align:center;
+}
+
+input{
+  padding:10px;
+  margin:5px;
+  border:1px solid #ccc;
+  border-radius:6px;
+}
+
+button{
+  padding:10px 15px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.btn-primary{
+  background:#1f2937;
+  color:white;
+}
+
+.btn-danger{
+  background:#b91c1c;
+  color:white;
+}
+
+.card{
+  background:white;
+  padding:15px;
+  margin-top:15px;
+  border-radius:10px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.08);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.status{
+  font-weight:bold;
+}
+.hidden{
+  display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Panel de Administración</h1>
+
+<div class="login" id="login">
+  <input type="password" id="clave" placeholder="Contraseña">
+  <button class="btn-primary" onclick="acceder()">Entrar</button>
+</div>
+
+<div id="panel" class="hidden">
+
+<h3>Agregar nuevo folio</h3>
+
+<input type="text" id="folio" placeholder="Folio">
+<input type="text" id="estatus" placeholder="Estatus">
+<button class="btn-primary" onclick="guardar()">Agregar</button>
+
+<div id="lista"></div>
+
+</div>
+</div>
+
+<script>
+const contraseña="1234"; // CAMBIA ESTO
+
+function acceder(){
+  if(document.getElementById("clave").value===contraseña){
+    document.getElementById("login").style.display="none";
+    document.getElementById("panel").classList.remove("hidden");
+    mostrar();
+  }else{
+    alert("Contraseña incorrecta");
+  }
+}
+
+function guardar(){
+  const folio=document.getElementById("folio").value;
+  const estatus=document.getElementById("estatus").value;
+
+  if(!folio || !estatus) return alert("Completa todos los campos");
+
+  const datos=JSON.parse(localStorage.getItem("reparaciones"))||[];
+
+  datos.push({folio,estatus});
+
+  localStorage.setItem("reparaciones",JSON.stringify(datos));
+
+  document.getElementById("folio").value="";
+  document.getElementById("estatus").value="";
+
+  mostrar();
+}
+
+function eliminar(index){
+  const datos=JSON.parse(localStorage.getItem("reparaciones"))||[];
+  datos.splice(index,1);
+  localStorage.setItem("reparaciones",JSON.stringify(datos));
+  mostrar();
+}
+
+function mostrar(){
+  const lista=document.getElementById("lista");
+  lista.innerHTML="";
+  const datos=JSON.parse(localStorage.getItem("reparaciones"))||[];
+
+  datos.forEach((item,index)=>{
+    lista.innerHTML+=`
+      <div class="card">
+        <div>
+          <div><strong>${item.folio}</strong></div>
+          <div class="status">${item.estatus}</div>
+        </div>
+        <button class="btn-danger" onclick="eliminar(${index})">Borrar</button>
+      </div>
+    `;
+  });
+}
+</script>
+
+</body>
+</html>
