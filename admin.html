@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin SupportTeam</title>
+<title>Admin | SupportTeam</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
@@ -11,80 +11,83 @@
 body{
   margin:0;
   font-family:'Poppins',sans-serif;
-  background:#111;
+  background:linear-gradient(-45deg,#6a0dad,#00c9a7,#800020,#c77dff);
+  background-size:400% 400%;
+  animation:tornasol 10s ease infinite;
   color:white;
-  padding:20px;
+  text-align:center;
+  padding:40px 20px;
 }
 
-h1{text-align:center;}
+@keyframes tornasol{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+.section-box{
+  background:rgba(0,0,0,0.4);
+  padding:25px;
+  border-radius:20px;
+  margin-top:30px;
+}
 
 input{
-  width:100%;
   padding:12px;
-  margin:8px 0;
-  border-radius:10px;
+  border-radius:12px;
   border:none;
-  font-size:16px;
+  width:250px;
+  margin:5px;
 }
 
 button{
-  padding:12px;
+  padding:12px 18px;
+  border-radius:12px;
   border:none;
-  border-radius:10px;
-  cursor:pointer;
+  background:#20c997;
   font-weight:600;
-  margin-top:5px;
+  cursor:pointer;
+  margin-top:10px;
 }
 
-.btn-main{background:#20c997;color:black;width:100%;}
-.btn-edit{background:#ffc107;color:black;}
-.btn-delete{background:#dc3545;color:white;}
-.btn-logout{background:#6c757d;color:white;width:100%;margin-top:10px;}
-
-.card{
-  background:#1e1e1e;
-  padding:15px;
-  margin-top:15px;
-  border-radius:15px;
-}
-
-.status-guide{
-  background:#222;
-  padding:15px;
-  border-radius:15px;
-  margin-top:20px;
+#relojAdmin{
+  position:absolute;
+  top:20px;
+  right:20px;
+  background:rgba(0,0,0,0.4);
+  padding:10px 15px;
+  border-radius:12px;
+  font-weight:600;
 }
 </style>
 </head>
 
 <body>
 
-<h1>Panel Administrador</h1>
-
-<input type="text" id="folioInput" placeholder="Folio">
-<input type="text" id="modeloInput" placeholder="Modelo">
-<input type="text" id="estatusInput" placeholder="Estatus">
-<input type="text" id="fechaInput" placeholder="Fecha estimada">
-
-<button class="btn-main" onclick="guardar()">Guardar / Actualizar</button>
-<button class="btn-logout" onclick="cerrarSesion()">Cerrar sesión</button>
-
-<div class="status-guide">
-<h3>Guía de Estatus</h3>
-<ul>
-<li>En espera de refacción</li>
-<li>En proceso de reparación</li>
-<li>Demora consulte a su técnico</li>
-<li>Últimos retoques</li>
-<li>Éxito / Reparado / Listo</li>
-</ul>
+<div id="loginBox" class="section-box">
+  <h2>Acceso Administrador</h2>
+  <input type="text" id="usuario" placeholder="Usuario"><br>
+  <input type="password" id="clave" placeholder="Contraseña"><br>
+  <button onclick="login()">Ingresar</button>
 </div>
 
-<div id="lista"></div>
+<div id="panelAdmin" style="display:none;">
+  <div id="relojAdmin"></div>
+  <h1>Panel de Control</h1>
+
+  <div class="section-box">
+    <h2>Agregar / Actualizar Reparación</h2>
+    <input type="text" id="folio" placeholder="Folio"><br>
+    <input type="text" id="modelo" placeholder="Modelo"><br>
+    <input type="text" id="estatus" placeholder="Estatus"><br>
+    <input type="text" id="fecha" placeholder="Fecha estimada"><br>
+    <button onclick="guardar()">Guardar</button>
+  </div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } 
+import { getFirestore, doc, setDoc } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -100,70 +103,35 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const contraseña="1234";
-let acceso=prompt("Ingrese contraseña:");
-if(acceso!==contraseña){
-  document.body.innerHTML="Acceso denegado";
-}
-
-let editandoId=null;
-
-window.guardar=async function(){
-  const folio=folioInput.value.trim();
-  const modelo=modeloInput.value.trim();
-  const estatus=estatusInput.value.trim();
-  const fecha=fechaInput.value.trim();
-
-  if(editandoId){
-    await updateDoc(doc(db,"reparaciones",editandoId),{folio,modelo,estatus,fecha});
-    editandoId=null;
-  }else{
-    await addDoc(collection(db,"reparaciones"),{folio,modelo,estatus,fecha});
+window.login = function(){
+  if(usuario.value==="ym98" && clave.value==="Tigres98"){
+    loginBox.style.display="none";
+    panelAdmin.style.display="block";
+    iniciarReloj();
+  } else {
+    alert("Usuario o contraseña incorrectos");
   }
-  limpiar();
-  mostrar();
 }
 
-window.editar=function(id,folio,modelo,estatus,fecha){
-  editandoId=id;
-  folioInput.value=folio;
-  modeloInput.value=modelo;
-  estatusInput.value=estatus;
-  fechaInput.value=fecha;
-}
-
-window.eliminar=async function(id){
-  await deleteDoc(doc(db,"reparaciones",id));
-  mostrar();
-}
-
-function limpiar(){
-  folioInput.value="";
-  modeloInput.value="";
-  estatusInput.value="";
-  fechaInput.value="";
-}
-
-window.cerrarSesion=function(){
-  location.reload();
-}
-
-async function mostrar(){
-  lista.innerHTML="";
-  const querySnapshot=await getDocs(collection(db,"reparaciones"));
-  querySnapshot.forEach((docSnap)=>{
-    const data=docSnap.data();
-    lista.innerHTML+=`
-      <div class="card">
-        <strong>${data.folio}</strong> - ${data.modelo}<br>
-        ${data.estatus} | ${data.fecha}<br><br>
-        <button class="btn-edit" onclick="editar('${docSnap.id}','${data.folio}','${data.modelo}','${data.estatus}','${data.fecha}')">Editar</button>
-        <button class="btn-delete" onclick="eliminar('${docSnap.id}')">Eliminar</button>
-      </div>`;
+window.guardar = async function(){
+  await setDoc(doc(db,"reparaciones",folio.value),{
+    folio:folio.value,
+    modelo:modelo.value,
+    estatus:estatus.value,
+    fecha:fecha.value
   });
+  alert("Guardado correctamente");
 }
 
-mostrar();
+function iniciarReloj(){
+  function actualizar(){
+    const ahora=new Date();
+    relojAdmin.innerHTML =
+      ahora.toLocaleDateString()+" | "+ahora.toLocaleTimeString();
+  }
+  setInterval(actualizar,1000);
+  actualizar();
+}
 </script>
 
 </body>
