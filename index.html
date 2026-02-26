@@ -3,42 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Consulta tu Reparación</title>
+<title>Consulta | SupportTeam</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
 body{
   margin:0;
   font-family:'Poppins',sans-serif;
-  color:white;
   text-align:center;
-  padding:40px;
-  background: linear-gradient(-45deg, #6a0dad, #00c9a7, #800020, #c77dff, #ff1493);
-  background-size: 400% 400%;
-  animation: tornasol 10s ease infinite;
+  color:white;
+  padding:40px 20px;
+  background:#111;
+  transition:0.5s;
 }
 
-@keyframes tornasol {
-  0%{background-position:0% 50%;}
-  50%{background-position:100% 50%;}
-  100%{background-position:0% 50%;}
-}
-
-#reloj{
-  position:absolute;
-  top:20px;
-  right:30px;
-  font-size:18px;
-  font-weight:600;
-  background:rgba(0,0,0,0.3);
-  padding:10px 15px;
-  border-radius:10px;
-  backdrop-filter:blur(5px);
+h1{
+  margin-bottom:30px;
 }
 
 input{
-  padding:14px;
+  padding:15px;
   border-radius:12px;
   border:none;
   width:250px;
@@ -46,49 +31,51 @@ input{
 }
 
 button{
-  padding:14px 20px;
+  padding:15px 20px;
   border-radius:12px;
   border:none;
   background:#20c997;
-  color:black;
   font-weight:600;
   cursor:pointer;
-  margin-left:5px;
-  transition:0.3s;
+  margin-left:10px;
 }
 
-button:hover{
-  transform:scale(1.05);
-}
-
-.result{
+.resultado-box{
   margin-top:40px;
-  background:rgba(0,0,0,0.4);
-  padding:25px;
-  border-radius:20px;
-  display:inline-block;
-  min-width:280px;
+  padding:50px;
+  border-radius:25px;
+  font-size:24px;
   animation:fadeIn 0.5s ease-in-out;
 }
 
 @keyframes fadeIn{
-  from{opacity:0; transform:translateY(10px);}
-  to{opacity:1; transform:translateY(0);}
+  from{opacity:0; transform:scale(0.9);}
+  to{opacity:1; transform:scale(1);}
 }
 
-.fireworks{
-  font-size:40px;
-  animation:explode 1s infinite alternate;
+.verdeParpadeo{
+  animation:verdeFlash 1s infinite;
 }
 
-@keyframes explode{
-  from{transform:scale(1);}
-  to{transform:scale(1.3);}
+@keyframes verdeFlash{
+  0%{background:#00ff00;}
+  50%{background:#006400;}
+  100%{background:#00ff00;}
+}
+
+.alertaParpadeo{
+  animation:alertaFlash 1s infinite;
+}
+
+@keyframes alertaFlash{
+  0%{background:#ff0000;}
+  50%{background:#001aff;}
+  100%{background:#ff0000;}
 }
 
 .whatsapp{
   display:inline-block;
-  margin-top:15px;
+  margin-top:20px;
   padding:12px 18px;
   background:#25D366;
   color:white;
@@ -97,17 +84,31 @@ button:hover{
   font-weight:600;
 }
 
-.footer{
-  margin-top:60px;
-  font-size:14px;
-  opacity:0.8;
+.social-buttons{
+  margin-top:50px;
+}
+
+.social-buttons a{
+  display:inline-block;
+  margin:10px;
+  padding:12px 18px;
+  border-radius:12px;
+  text-decoration:none;
+  font-weight:600;
+  color:white;
+}
+
+.facebook{
+  background:#1877F2;
+}
+
+.maps{
+  background:#EA4335;
 }
 </style>
 </head>
 
 <body>
-
-<div id="reloj"></div>
 
 <h1>Consulta tu Reparación</h1>
 
@@ -116,13 +117,22 @@ button:hover{
 
 <div id="resultado"></div>
 
-<div class="footer">
-Creado, Editado y Animado por (ChatGPT y JB)
+<!-- BOTONES REDES -->
+<div class="social-buttons">
+  <a class="facebook" target="_blank" 
+  href="https://www.facebook.com/share/1AuqhGUCug/">
+  Síguenos en Facebook
+  </a>
+
+  <a class="maps" target="_blank" 
+  href="https://maps.app.goo.gl/GQ1rXLUXYA8GogZh6">
+  Encuéntranos aquí
+  </a>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, getDocs } 
+import { getFirestore, doc, getDoc } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -135,62 +145,40 @@ const firebaseConfig = {
   measurementId: "G-TJH6NFCK02"
 };
 
-const app=initializeApp(firebaseConfig);
-const db=getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-// RELOJ DIGITAL
-function actualizarReloj(){
-  const ahora=new Date();
-  const fecha=ahora.toLocaleDateString();
-  const hora=ahora.toLocaleTimeString();
-  document.getElementById("reloj").innerHTML=`${fecha} | ${hora}`;
-}
-setInterval(actualizarReloj,1000);
-actualizarReloj();
+window.buscar = async function(){
+  const folio = folioInput.value.trim();
+  const snap = await getDoc(doc(db,"reparaciones",folio));
 
-// BUSCAR FOLIO
-window.buscar=async function(){
-  const folio=folioInput.value.trim();
-  const querySnapshot=await getDocs(collection(db,"reparaciones"));
-  let encontrado=false;
+  if(snap.exists()){
+    const data = snap.data();
+    let clase="";
+    let boton="";
+    const estatus=data.estatus.toLowerCase();
 
-  querySnapshot.forEach((doc)=>{
-    const data=doc.data();
-    if(data.folio===folio){
-      encontrado=true;
-
-      let fuegos="";
-      let botonWhats="";
-      const estatus=data.estatus.toLowerCase();
-
-      if(estatus.includes("reparado") || 
-         estatus.includes("listo") ||
-         estatus.includes("éxito")){
-
-        fuegos="<div class='fireworks'>🎆🎇🎆</div>";
-
-        const mensaje=encodeURIComponent("Hola suportteam, mi estatus aparece como reparado ¿en que horario paso a recoger mi equipo?");
-        botonWhats=`<a class="whatsapp" target="_blank" href="https://wa.me/528145457703?text=${mensaje}">Enviar mensaje por WhatsApp</a>`;
-      }
-
-      if(estatus.includes("demora")){
-        const mensaje=encodeURIComponent("Hola suportteam, al revisar mi folio aparece como demora ¿tenemos algun detalle?");
-        botonWhats=`<a class="whatsapp" target="_blank" href="https://wa.me/528145457703?text=${mensaje}">Enviar mensaje por WhatsApp</a>`;
-      }
-
-      resultado.innerHTML=`
-        <div class="result">
-          <h2>${data.modelo}</h2>
-          <p><strong>Estatus:</strong> ${data.estatus}</p>
-          <p><strong>Fecha estimada:</strong> ${data.fecha}</p>
-          ${fuegos}
-          ${botonWhats}
-        </div>`;
+    if(estatus.includes("reparado")||estatus.includes("listo")){
+      clase="verdeParpadeo";
+      const mensaje=encodeURIComponent("Hola supportteam, mi estatus aparece como reparado ¿en qué horario paso a recoger mi equipo?");
+      boton=`<a class="whatsapp" target="_blank" href="https://wa.me/528145457703?text=${mensaje}">Contactar por WhatsApp</a>`;
     }
-  });
 
-  if(!encontrado){
-    resultado.innerHTML="<div class='result'>Folio no encontrado</div>";
+    if(estatus.includes("demora")){
+      clase="alertaParpadeo";
+      const mensaje=encodeURIComponent("Hola supportteam, al revisar mi folio aparece como demora ¿tenemos algún detalle?");
+      boton=`<a class="whatsapp" target="_blank" href="https://wa.me/528145457703?text=${mensaje}">Contactar por WhatsApp</a>`;
+    }
+
+    resultado.innerHTML=`
+      <div class="resultado-box ${clase}">
+        <h2>${data.modelo}</h2>
+        <p><strong>Estatus:</strong> ${data.estatus}</p>
+        <p><strong>Fecha estimada:</strong> ${data.fecha}</p>
+        ${boton}
+      </div>`;
+  } else {
+    resultado.innerHTML="<div class='resultado-box'>Folio no encontrado</div>";
   }
 }
 </script>
